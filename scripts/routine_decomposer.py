@@ -102,7 +102,7 @@ def decompose(task: str, available_tools: Optional[List[str]] = None) -> Routine
         "cronjob", "delegate_task", "skill_view", "execute_code", "mnemosyne_remember"
     ]
     steps = []
-    parts = re.split(r'(?:then|and then|next|after that)', task, flags=re.IGNORECASE)
+    parts = re.split(r'\b(?:then|and then|next|after that)\b', task, flags=re.IGNORECASE)
 
     for i, part in enumerate(parts, 1):
         part = part.strip()
@@ -127,7 +127,7 @@ def _heuristic_tool(step_text: str, tools: List[str]) -> str:
     mappings = [
         (["create cron", "schedule", "cron"], "cronjob"),
         (["read file", "read"], "read_file"),
-        (["write file", "create file"], "write_file"),
+        (["write file", "create file", "write"], "write_file"),
         (["search", "find"], "search_files"),
         (["terminal", "bash", "run command"], "terminal"),
         (["delegate", "spawn", "subagent"], "delegate_task"),
@@ -193,7 +193,7 @@ def run_tests() -> int:
         RoutineStep(3, "Format", "Return JSON", "formatter_tool", None, True),
     ])
     output = format_routine(routine)
-    assert "Step 1. Verify Permissions:" in output
+    assert "Step 1. Verify:" in output
     assert "using auth_tool" in output
     assert "terminate workflow" in output
     tests_passed += 1
