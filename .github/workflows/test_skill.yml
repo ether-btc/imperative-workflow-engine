@@ -10,5 +10,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run privilege_encoder basic test
+      - name: Run privilege_encoder tests
         run: python3 scripts/privilege_encoder.py --test

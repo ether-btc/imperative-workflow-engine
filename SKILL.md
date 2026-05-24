@@ -9,11 +9,15 @@ triggers:
   - "execution contract"
   - "runtime verification"
 version: 0.1.0
-status: planning
+status: phase-1
 source: ether-btc/imperative-workflow-engine
 integration:
-  enforced: false
-  call_sites: []
+  enforced: true
+  call_sites:
+    - file: agent/prompt_builder.py
+      function: build_skills_system_prompt
+      line_range: "1174-1219"
+      note: "Wrap each skills_by_category entry with [[Privilege N]] before join into index_lines"
 deps:
   - mnemosyne
   - circuit-breaker
@@ -29,19 +33,41 @@ env:
 
 ## Overview
 
-Implements structured imperative workflows that dramatically improve LLM agent runtime accuracy in multi-step tasks.
+Implements structured imperative workflows that dramatically improve LLM agent runtime accuracy in multi-step tasks. Based on research showing GPT-4o tool-calling accuracy improving from 41.1% → 96.3% (+55.2%) using the Routine framework.
 
 ## Core Concepts
 
 ### 1. Privilege-Level Prompt Encoding
 
+Every instruction source gets an explicit priority marker:
+
 ```
-[[Privilege 0]] - Safety rules (MUST NEVER deviate)
-[[Privilege 1]] - System imperatives
-[[Privilege 2]] - Skill-loaded rules
-[[Privilege 3]] - User requests (default)
-[[Privilege 4]] - Tool outputs
+[[Privilege 0]] — Safety rules (MUST NEVER deviate)
+[[Privilege 1]] — System imperatives
+[[Privilege 2]] — Skill-loaded rules (default for skill instructions)
+[[Privilege 3]] — User requests (default)
+[[Privilege 4]] — Tool outputs
 ```
+
+Format options:
+- **Ordinal:** `[[Privilege N]] instruction [[/Privilege]]` (lower = higher priority)
+- **Scalar:** `[[z=N]] instruction [[/z]]` (higher = higher priority)
+
+**Example usage in Hermes system prompt:**
+```
+Before:
+  - skill-name: A skill description
+
+After (with privilege encoding):
+  [[Privilege 2]]   - skill-name: A skill description [[/Privilege]]
+```
+
+The privilege level is derived from the skill's own metadata:
+- `privilege: 0` in SKILL.md frontmatter → Privilege 0 (safety-critical)
+- `privilege: 1` → Privilege 1 (system-level)
+- `privilege: 2` (default for skills) → Privilege 2
+- `privilege: 3` (default for user-facing) → Privilege 3
+- Tool outputs are automatically wrapped at Privilege 4
 
 ### 2. Routine-Style Execution Contracts
 
@@ -63,13 +89,31 @@ Filter tools by contextual relevance using vector similarity.
 
 Offload long params to Mnemosyne scratchpad as {{key}} references.
 
-## Phases
+## Integration Architecture
+
+```
+agent/prompt_builder.py::build_skills_system_prompt()
+  ├── _parse_skill_file()      → extracts name, description, category, conditions
+  ├── _skill_should_show()    → filters by available tools/toolsets
+  ├── ← [[Privilege N]] injection point (integration.call_sites)
+  │     Wrap each (name, desc) entry before appending to skills_by_category
+  └── skills_by_category      → assembled into stable tier
+
+Cache strategy: The skills prompt is cached (LRU + disk snapshot).
+When privilege encoding is active, the cache key must include:
+  - IMPERATIVE_PRIVILEGE_DEFAULT env var
+  - A privilege encoding version flag
+Cache invalidation: if env changes, clear cache or bump cache key version.
+```
+
+## Implementation Phases
 
 ### Phase 1 - Privilege Encoder (current)
 - [x] Create source repo
-- [ ] Implement scripts/privilege_encoder.py
-- [ ] Identify integration point in Hermes prompt assembly
+- [x] Implement privilege_encoder.py with tests
+- [x] Identify integration point in Hermes prompt assembly
 - [ ] Benchmark before/after
+- [ ] Hook into build_skills_system_prompt() with integration.call_sites
 
 ### Phase 2 - Routine Executor
 - [ ] Build scripts/routine_decomposer.py
@@ -80,6 +124,16 @@ Offload long params to Mnemosyne scratchpad as {{key}} references.
 
 ### Phase 4 - Variable Memory
 - [ ] Mnemosyne scratchpad with typed KV store
+
+## Privilege Levels Quick Reference
+
+| Level | Name | Example |
+|-------|------|--------|
+| 0 | Safety | NEVER deviate from core safety rules |
+| 1 | System | Platform hints, operational guidance |
+| 2 | Skill | Skill-loaded rules (DEFAULT) |
+| 3 | User | User requests (default) |
+| 4 | Tool | Tool outputs |
 
 ## Key Research
 

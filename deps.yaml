@@ -4,7 +4,10 @@ version: 0.1.0
 environment:
   IMPERATIVE_PRIVILEGE_DEFAULT: "3"
   IMPERATIVE_TOOL_FILTER_THRESHOLD: "0.7"
+  IMPERATIVE_VERIFY_CONTRACTS: "true"
+  IMPERATIVE_MAX_STEPS: "20"
 
 verification:
-  - name: privilege_encoder_basic
+  - name: privilege_encoder_tests
     command: python3 scripts/privilege_encoder.py --test
+    expected: "PASS"
