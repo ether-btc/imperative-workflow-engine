@@ -9,7 +9,7 @@ triggers:
   - "execution contract"
   - "runtime verification"
 version: 0.1.0
-status: phase-1
+status: phase-2
 source: ether-btc/imperative-workflow-engine
 integration:
   enforced: true
@@ -116,14 +116,21 @@ Cache invalidation: if env changes, clear cache or bump cache key version.
 - [ ] Hook into build_skills_system_prompt() with integration.call_sites
 
 ### Phase 2 - Routine Executor
-- [ ] Build scripts/routine_decomposer.py
-- [ ] Store Routines in Mnemosyne
+- [x] Build scripts/routine_decomposer.py
+- [x] Store Routines in Mnemosyne
+- [x] Build scripts/contract_verifier.py
+- [x] Build scripts/tool_filter.py
 
 ### Phase 3 - Runtime Verification + Tool Filtering
-- [ ] scripts/contract_verifier.py + scripts/tool_filter.py
+- [x] scripts/contract_verifier.py (moved to Phase 2)
+- [x] scripts/tool_filter.py (moved to Phase 2)
 
 ### Phase 4 - Variable Memory
 - [ ] Mnemosyne scratchpad with typed KV store
+
+### Phase 5 - build_skills_system_prompt Integration
+- [ ] Hook into build_skills_system_prompt() with integration.call_sites
+- [ ] Benchmark before/after
 
 ## Privilege Levels Quick Reference
 
