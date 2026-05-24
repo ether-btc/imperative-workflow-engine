@@ -12,3 +12,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run privilege_encoder tests
         run: python3 scripts/privilege_encoder.py --test
+      - name: Run routine_decomposer tests
+        run: python3 scripts/routine_decomposer.py --test
+      - name: Run contract_verifier tests
+        run: python3 scripts/contract_verifier.py --test
+      - name: Run tool_filter tests
+        run: python3 scripts/tool_filter.py --test
