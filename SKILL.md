@@ -9,7 +9,7 @@ triggers:
   - "execution contract"
   - "runtime verification"
 version: 0.1.0
-status: phase-2
+status: phase-4
 source: ether-btc/imperative-workflow-engine
 integration:
   enforced: true
@@ -123,9 +123,9 @@ Cache invalidation: if env changes, clear cache or bump cache key version.
 - [x] scripts/contract_verifier.py (moved from Phase 3)
 - [x] scripts/tool_filter.py (moved from Phase 3)
 
-### Phase 4 - Variable Memory 🔲 PENDING
-- [ ] Mnemosyne scratchpad with typed KV store for `{{key}}` references
-- [ ] Store Routines in Mnemosyne (deferred from Phase 2)
+### Phase 4 - Variable Memory ✅ CLOSED
+- [x] Mnemosyne scratchpad with typed KV store for `{{key}}` references
+- [x] Store Routines in Mnemosyne (via routine_decomposer.py store/load/clear commands)
 
 ### Phase 5 - build_skills_system_prompt Integration 🔒 BLOCKED
 - [ ] Hook [[Privilege N]] injection into build_skills_system_prompt() with integration.call_sites

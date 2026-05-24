@@ -18,3 +18,5 @@ jobs:
         run: python3 scripts/contract_verifier.py --test
       - name: Run tool_filter tests
         run: python3 scripts/tool_filter.py --test
+      - name: Run variable_memory tests
+        run: python3 scripts/variable_memory.py --test

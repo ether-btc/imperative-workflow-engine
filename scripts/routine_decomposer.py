@@ -258,6 +258,19 @@ def main() -> int:
 
     subparsers.add_parser("test", help="Run self-tests")
 
+    store_parser = subparsers.add_parser("store", help="Store a routine in Mnemosyne")
+    store_parser.add_argument("name", help="Routine name (key)")
+    store_parser.add_argument(
+        "--task", help="Task description (for decompose-then-store)"
+    )
+    store_parser.add_argument("--json", help="JSON serialized routine to store")
+
+    load_parser = subparsers.add_parser("load", help="Load a routine from Mnemosyne")
+    load_parser.add_argument("name", help="Routine name")
+    load_parser.add_argument("--json", action="store_true")
+
+    subparsers.add_parser("clear", help="Clear all stored routines from Mnemosyne")
+
     args = parser.parse_args()
 
     if args.command == "test":
@@ -288,6 +301,86 @@ def main() -> int:
             )
         else:
             print(output)
+        return 0
+    elif args.command == "store":
+        import variable_memory as vm
+
+        if args.json:
+            import json
+
+            routine_data = json.loads(args.json)
+        elif args.task:
+            # Decompose then store
+            routine = decompose(args.task)
+            routine_data = {
+                "steps": [
+                    (s.number, s.name, s.description, s.tool, s.condition, s.terminates)
+                    for s in routine.steps
+                ],
+                "metadata": {"original_task": args.task},
+            }
+        else:
+            print("ERROR: either --task or --json is required", file=sys.stderr)
+            return 1
+        import json
+
+        # Serialize to JSON and store as variable
+        key = f"routine:{args.name}"
+        record = json.dumps(routine_data)
+        # Use variable_memory's set_var via its internal mechanism
+        # We bypass to use mnemosyne directly
+        try:
+            from hermes_tools import mnemosyne_scratchpad_write
+
+            mnemosyne_scratchpad_write(key, record)
+        except Exception:
+            # fallback to variable_memory
+            vm.set_var(key, record, vm.ValueType.STRING)
+        print(f"Stored routine '{args.name}' ({len(record)} bytes)")
+        return 0
+    elif args.command == "load":
+        import variable_memory as vm
+
+        key = f"routine:{args.name}"
+        result = vm.get_var(key)
+        if result is None:
+            print(f"ERROR: routine '{args.name}' not found", file=sys.stderr)
+            return 1
+        data, _ = result
+        if args.json:
+            import json
+
+            print(json.dumps(json.loads(data), indent=2))
+        else:
+            # Reconstruct and format
+            import json
+
+            loaded = json.loads(data)
+            steps = [
+                RoutineStep(
+                    number=s[0],
+                    name=s[1],
+                    description=s[2],
+                    tool=s[3] if len(s) > 3 else None,
+                    condition=s[4] if len(s) > 4 else None,
+                    terminates=s[5] if len(s) > 5 else False,
+                )
+                for s in loaded.get("steps", [])
+            ]
+            routine = Routine(steps=steps, metadata=loaded.get("metadata", {}))
+            print(format_routine(routine))
+        return 0
+    elif args.command == "clear":
+        import variable_memory as vm
+
+        # Clear all routines (keys starting with routine:)
+        keys = vm.list_vars()
+        count = 0
+        for k in keys:
+            if k.startswith("routine:"):
+                vm.drop_var(k)
+                count += 1
+        print(f"Cleared {count} routine(s)")
         return 0
     else:
         parser.print_help()

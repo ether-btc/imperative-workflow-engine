@@ -1,38 +1,32 @@
 # CONTINUE_HERE — imperative-workflow-engine
 
 ## Session Reference
-**Date:** 2026-05-24 (second session — gap review and fixes)
-**Task:** Review + fix identified gaps, update CI, clean SKILL.md
+**Date:** 2026-05-24 (third session — Phase 4 Variable Memory)
+**Task:** Implement Phase 4: Mnemosyne scratchpad + routine storage
 **Status:** COMPLETE ✅
 
 ---
 
 ## What was done
 
-### 1. SKILL.md cleanup (Phase 1/5 split, Phase 4/2 contradictions resolved)
-- Phase 1 marked `✅ CLOSED` — removed stale `[ ]` items that belonged in Phase 5
-- Phase 2 marked `✅ CLOSED` — added "(decomposition logic only)" clarification
-- "Store Routines in Mnemosyne" moved to Phase 4 as deferred
-- Phase 3 marked `✅ CLOSED`
-- Phase 4 marked `🔲 PENDING` with both items listed
-- Phase 5 marked `🔒 BLOCKED` with `blocked_by: hermes-agent PR` — explains that
-  the integration point (agent/prompt_builder.py lines 1183-1190) is in the external
-  hermes-agent repo and requires a PR there before Phase 5 can proceed
+### Phase 4 closed
 
-### 2. MyPy fixes (3 files, 5 errors resolved)
-- `contract_verifier.py` line 230: added type annotations to `violations` and `warnings`
-- `contract_verifier.py` line 411: `True` → `"true"` (string) to match schema dict value type
-- `privilege_encoder.py` line 333: introduced intermediate `decoded` variable to avoid
-  `Optional[EncodedInstruction]` → `EncodedInstruction` assignment mismatch
+#### `scripts/variable_memory.py` (new)
+- `ValueType` enum: str/int/float/bool/list/dict
+- `set_var()` — typed KV store with auto-detect, module-level registry fallback
+- `get_var()` — retrieval with full deserialization
+- `resolve()` — replaces `{{key}}` tokens in free text, leaves unresolved as-is
+- `drop_var()` / `list_vars()` / `clear_vars()` — CRUD operations
+- 13/13 tests passing, mypy clean
 
-### 3. End-to-end fixture (contract_verifier JSON test data)
-- `scripts/fixtures/sample_contract.json` — 3-step admin workflow contract
-- `scripts/fixtures/sample_outputs.json` — matching step outputs
-- Verified: `contract_verifier.py verify --contract ... --outputs ...` → PASS
+#### `scripts/routine_decomposer.py` — extended with Mnemosyne store/load
+- `store` subcommand — saves a routine by name (via decompose-then-store or raw JSON)
+- `load` subcommand — retrieves and reformats a stored routine
+- `clear` subcommand — clears all stored routines
 
-### 4. Ruff formatted all scripts (clean bill of health)
-- All 4 scripts pass `ruff check` and `ruff format --check`
-- All 4 test suites still pass after changes
+#### `scripts/test_skill.yml` — added variable_memory CI step
+
+#### `SKILL.md` — Phase 4 marked ✅ CLOSED, status → phase-4
 
 ---
 
@@ -40,24 +34,25 @@
 
 ```
 Repo: ether-btc/imperative-workflow-engine
-Commits (13 total, all pushed):
-  12dc0f9  Phase 2: implement contract_verifier.py + tool_filter.py
-  6e21c3a  docs: update SKILL.md + README + CONTINUE_HERE for Phase 2 complete
-  ... (10 more from earlier sessions)
-
-Latest branch: main (clean)
-CI: 5 green runs (all pass)
+Last commit: (this session) — Phase 4: Variable Memory
+14 total commits, all pushed
 ```
+
+| Script | Tests | Ruff | MyPy |
+|--------|-------|------|------|
+| privilege_encoder.py | ✅ 10/10 | ✅ | ✅ |
+| routine_decomposer.py | ✅ 6/6 | ✅ | ✅ |
+| contract_verifier.py | ✅ 12/12 | ✅ | ✅ |
+| tool_filter.py | ✅ 11/11 | ✅ | ✅ |
+| variable_memory.py | ✅ 13/13 | ✅ | ✅ |
+
+CI: green (6+ runs)
 
 ---
 
 ## Project Health: 10/10
 
-All gaps resolved. No known issues.
-- SKILL.md is accurate and consistent
-- All scripts pass ruff + mypy (with --ignore-missing-imports for sklearn)
-- Fixtures prove contract_verifier works end-to-end
-- Phase 5 properly documented as blocked
+All phases 1-4 complete. No known issues. Phase 5 blocked on hermes-agent PR.
 
 ---
 
@@ -65,7 +60,7 @@ All gaps resolved. No known issues.
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| Phase 4 | 🔲 PENDING | Mnemosyne scratchpad + routine storage |
+| Phase 4 | ✅ CLOSED | — |
 | Phase 5 | 🔒 BLOCKED | Needs hermes-agent PR for build_skills_system_prompt hook |
 
 ---
@@ -74,24 +69,29 @@ All gaps resolved. No known issues.
 
 ```bash
 git clone https://github.com/ether-btc/imperative-workflow-engine.git /tmp/imperative-workflow-engine
-
-# Run all tests
 cd /tmp/imperative-workflow-engine
+
+# All tests
 python3 scripts/privilege_encoder.py --test
 python3 scripts/routine_decomposer.py --test
 python3 scripts/contract_verifier.py --test
 python3 scripts/tool_filter.py --test
+python3 scripts/variable_memory.py --test
 
-# End-to-end contract verification
+# Contract fixture
 python3 scripts/contract_verifier.py verify \
   --contract scripts/fixtures/sample_contract.json \
   --outputs scripts/fixtures/sample_outputs.json
 
+# Variable memory
+python3 scripts/variable_memory.py set user "Alice" --type str
+python3 scripts/variable_memory.py resolve "Hello {{user}}!"
+
+# Routine storage
+python3 scripts/routine_decomposer.py store deploy-cron --task "Create cron job every hour"
+python3 scripts/routine_decomposer.py load deploy-cron
+
 # Static analysis
 ruff check scripts/
 mypy scripts/ --ignore-missing-imports
-
-# See also
-cat /tmp/imperative-workflow-engine/SKILL.md
-cat /tmp/imperative-workflow-engine/CONTINUE_HERE.md
 ```
