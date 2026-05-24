@@ -16,8 +16,8 @@ integration:
   call_sites:
     - file: agent/prompt_builder.py
       function: build_skills_system_prompt
-      line_range: "1174-1219"
-      note: "Wrap each skills_by_category entry with [[Privilege N]] before join into index_lines"
+      line_range: "1183-1190"
+      note: "Wrap each (name, desc) tuple with [[Privilege N]] in the index_lines loop before appending"
 deps:
   - mnemosyne
   - circuit-breaker
