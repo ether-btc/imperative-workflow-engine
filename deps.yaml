@@ -1,0 +1,10 @@
+name: imperative-workflow-engine
+version: 0.1.0
+
+environment:
+  IMPERATIVE_PRIVILEGE_DEFAULT: "3"
+  IMPERATIVE_TOOL_FILTER_THRESHOLD: "0.7"
+
+verification:
+  - name: privilege_encoder_basic
+    command: python3 scripts/privilege_encoder.py --test

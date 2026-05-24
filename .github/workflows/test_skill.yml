@@ -1,0 +1,14 @@
+name: imperative-workflow-engine
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run privilege_encoder basic test
+        run: python3 scripts/privilege_encoder.py --test
