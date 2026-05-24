@@ -1,0 +1,53 @@
+{
+  "steps": [
+    {
+      "number": 1,
+      "name": "Verify Permissions",
+      "description": "Check user has admin role",
+      "tool": "terminal",
+      "condition": null,
+      "terminates": false,
+      "expected_outcome": "admin role confirmed",
+      "output_schema": {
+        "type": "dict",
+        "keys": {
+          "role": {"type": "str", "enum": ["admin", "user"]},
+          "authorized": {"type": "bool"}
+        }
+      }
+    },
+    {
+      "number": 2,
+      "name": "Fetch Data",
+      "description": "If user is admin, retrieve records",
+      "tool": "terminal",
+      "condition": "user is admin",
+      "terminates": false,
+      "expected_outcome": "records retrieved",
+      "output_schema": {
+        "type": "dict",
+        "keys": {
+          "records": {"type": "list", "items": {"type": "dict"}},
+          "count": {"type": "int"}
+        }
+      }
+    },
+    {
+      "number": 3,
+      "name": "Format Response",
+      "description": "Return structured JSON",
+      "tool": "terminal",
+      "condition": null,
+      "terminates": true,
+      "expected_outcome": "JSON formatted",
+      "output_schema": {
+        "type": "str",
+        "pattern": "^\\{.*\\}$"
+      }
+    }
+  ],
+  "metadata": {
+    "description": "Admin data fetch workflow — verify perms, fetch records, format output",
+    "author": "imperative-workflow-engine"
+  }
+}

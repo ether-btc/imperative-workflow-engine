@@ -15,6 +15,8 @@ Based on the Routine framework (arXiv:2507.14447), this project implements privi
 | `scripts/contract_verifier.py` | Runtime verification of execution contracts | ✅ 12/12 |
 | `scripts/tool_filter.py` | Semantic tool filtering by contextual relevance | ✅ 11/11 |
 
+Fixtures: `scripts/fixtures/sample_contract.json` + `sample_outputs.json`
+
 ## Privilege Levels
 
 | Level | Label | Use |

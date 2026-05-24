@@ -1,0 +1,24 @@
+[
+  {
+    "tool_called": "terminal_tool",
+    "result": {
+      "role": "admin",
+      "authorized": true
+    }
+  },
+  {
+    "tool_called": "terminal_tool",
+    "result": {
+      "records": [
+        {"id": 1, "name": "Alice"},
+        {"id": 2, "name": "Bob"}
+      ],
+      "count": 2
+    }
+  },
+  {
+    "tool_called": "terminal_tool",
+    "result": "{\"status\": \"ok\", \"data\": [{\"id\": 1}, {\"id\": 2}]}",
+    "workflow_ended": "true"
+  }
+]

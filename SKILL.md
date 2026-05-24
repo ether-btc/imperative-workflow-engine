@@ -108,29 +108,29 @@ Cache invalidation: if env changes, clear cache or bump cache key version.
 
 ## Implementation Phases
 
-### Phase 1 - Privilege Encoder (current)
+### Phase 1 - Privilege Encoder ✅ CLOSED
 - [x] Create source repo
 - [x] Implement privilege_encoder.py with tests
 - [x] Identify integration point in Hermes prompt assembly
-- [ ] Benchmark before/after
-- [ ] Hook into build_skills_system_prompt() with integration.call_sites
 
-### Phase 2 - Routine Executor
-- [x] Build scripts/routine_decomposer.py
-- [x] Store Routines in Mnemosyne
+### Phase 2 - Routine Executor ✅ CLOSED
+- [x] Build scripts/routine_decomposer.py (decomposition logic only)
 - [x] Build scripts/contract_verifier.py
 - [x] Build scripts/tool_filter.py
+- [ ] Store Routines in Mnemosyne *(deferred — see Phase 4)*
 
-### Phase 3 - Runtime Verification + Tool Filtering
-- [x] scripts/contract_verifier.py (moved to Phase 2)
-- [x] scripts/tool_filter.py (moved to Phase 2)
+### Phase 3 - Runtime Verification + Tool Filtering ✅ CLOSED
+- [x] scripts/contract_verifier.py (moved from Phase 3)
+- [x] scripts/tool_filter.py (moved from Phase 3)
 
-### Phase 4 - Variable Memory
-- [ ] Mnemosyne scratchpad with typed KV store
+### Phase 4 - Variable Memory 🔲 PENDING
+- [ ] Mnemosyne scratchpad with typed KV store for `{{key}}` references
+- [ ] Store Routines in Mnemosyne (deferred from Phase 2)
 
-### Phase 5 - build_skills_system_prompt Integration
-- [ ] Hook into build_skills_system_prompt() with integration.call_sites
-- [ ] Benchmark before/after
+### Phase 5 - build_skills_system_prompt Integration 🔒 BLOCKED
+- [ ] Hook [[Privilege N]] injection into build_skills_system_prompt() with integration.call_sites
+- [ ] Benchmark before/after accuracy improvement
+- **blocked_by:** hermes-agent PR — the integration point (agent/prompt_builder.py line 1183-1190) is in the hermes-agent repo and requires a code change there before this phase can proceed. See `integration.call_sites` in SKILL.md frontmatter.
 
 ## Privilege Levels Quick Reference
 

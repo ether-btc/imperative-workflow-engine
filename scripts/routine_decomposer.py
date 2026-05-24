@@ -51,43 +51,53 @@ def parse_step(line: str) -> Optional[RoutineStep]:
     """
     # Pattern: simple step - use [^,] for description to stop at first comma
     m = re.match(
-        r'^Step\s+(\d+)\.\s+([^:]+):\s*([^,]+),\s*using\s+([a-zA-Z][a-zA-Z0-9_]*)\s*tool[;,]?\s*$',
-        line.strip()
+        r"^Step\s+(\d+)\.\s+([^:]+):\s*([^,]+),\s*using\s+([a-zA-Z][a-zA-Z0-9_]*)\s*tool[;,]?\s*$",
+        line.strip(),
     )
     if m:
         num = int(m.group(1))
         name = m.group(2).strip()
         desc = m.group(3).strip()
-        tool = m.group(4).strip().rstrip('_')
-        terminates = 'terminate workflow' in line.lower()
-        return RoutineStep(number=num, name=name, description=desc, tool=tool, terminates=terminates)
+        tool = m.group(4).strip().rstrip("_")
+        terminates = "terminate workflow" in line.lower()
+        return RoutineStep(
+            number=num, name=name, description=desc, tool=tool, terminates=terminates
+        )
 
     # Pattern: conditional step
     m = re.match(
-        r'^Step\s+(\d+)\.\s+([^:]+):\s*If\s+([^,]+),\s*([^,]+),\s*using\s+([a-zA-Z][a-zA-Z0-9_]*)\s*tool[;,]?\s*$',
-        line.strip()
+        r"^Step\s+(\d+)\.\s+([^:]+):\s*If\s+([^,]+),\s*([^,]+),\s*using\s+([a-zA-Z][a-zA-Z0-9_]*)\s*tool[;,]?\s*$",
+        line.strip(),
     )
     if m:
         num = int(m.group(1))
         name = m.group(2).strip()
         condition = m.group(3).strip()
         desc = m.group(4).strip()
-        tool = m.group(5).strip().rstrip('_')
-        terminates = 'terminate workflow' in line.lower()
-        return RoutineStep(number=num, name=name, description=desc, tool=tool,
-                         condition=condition, terminates=terminates)
+        tool = m.group(5).strip().rstrip("_")
+        terminates = "terminate workflow" in line.lower()
+        return RoutineStep(
+            number=num,
+            name=name,
+            description=desc,
+            tool=tool,
+            condition=condition,
+            terminates=terminates,
+        )
 
     # Pattern: terminating step (simple + terminates flag)
     m = re.match(
-        r'^Step\s+(\d+)\.\s+([^:]+):\s*([^,]+),\s*using\s+([a-zA-Z][a-zA-Z0-9_]*(?:_tool)?)\s*,\s*and\s+terminate\s+workflow\s*;?\s*$',
-        line.strip()
+        r"^Step\s+(\d+)\.\s+([^:]+):\s*([^,]+),\s*using\s+([a-zA-Z][a-zA-Z0-9_]*(?:_tool)?)\s*,\s*and\s+terminate\s+workflow\s*;?\s*$",
+        line.strip(),
     )
     if m:
         num = int(m.group(1))
         name = m.group(2).strip()
         desc = m.group(3).strip()
         tool = m.group(4).strip()
-        return RoutineStep(number=num, name=name, description=desc, tool=tool, terminates=True)
+        return RoutineStep(
+            number=num, name=name, description=desc, tool=tool, terminates=True
+        )
 
     return None
 
@@ -98,11 +108,21 @@ def decompose(task: str, available_tools: Optional[List[str]] = None) -> Routine
     Simplified heuristic version - production would use LLM.
     """
     tools = available_tools or [
-        "terminal", "read_file", "write_file", "patch", "search_files",
-        "cronjob", "delegate_task", "skill_view", "execute_code", "mnemosyne_remember"
+        "terminal",
+        "read_file",
+        "write_file",
+        "patch",
+        "search_files",
+        "cronjob",
+        "delegate_task",
+        "skill_view",
+        "execute_code",
+        "mnemosyne_remember",
     ]
     steps = []
-    parts = re.split(r'\b(?:then|and then|next|after that)\b', task, flags=re.IGNORECASE)
+    parts = re.split(
+        r"\b(?:then|and then|next|after that)\b", task, flags=re.IGNORECASE
+    )
 
     for i, part in enumerate(parts, 1):
         part = part.strip()
@@ -114,7 +134,7 @@ def decompose(task: str, available_tools: Optional[List[str]] = None) -> Routine
             name="Step {}".format(i),
             description=part,
             tool=tool,
-            terminates=(i == len(parts))
+            terminates=(i == len(parts)),
         )
         steps.append(step)
 
@@ -145,7 +165,9 @@ def format_routine(routine: Routine) -> str:
     for step in routine.steps:
         base = "Step {}. {}: {}".format(step.number, step.name, step.description)
         if step.condition:
-            base = "Step {}. {}: If {}, {}".format(step.number, step.name, step.condition, step.description)
+            base = "Step {}. {}: If {}, {}".format(
+                step.number, step.name, step.condition, step.description
+            )
         tool_str = ", using {}".format(step.tool) if step.tool else ""
         term_str = ", and terminate workflow" if step.terminates else ""
         lines.append(base + tool_str + term_str + ";")
@@ -154,10 +176,13 @@ def format_routine(routine: Routine) -> str:
 
 # CLI
 
+
 def run_tests() -> int:
     tests_passed = 0
 
-    step = parse_step("Step 1. Verify Permissions: Check user has admin role, using auth_tool;")
+    step = parse_step(
+        "Step 1. Verify Permissions: Check user has admin role, using auth_tool;"
+    )
     assert step is not None
     assert step.number == 1
     assert step.name == "Verify Permissions"
@@ -166,13 +191,17 @@ def run_tests() -> int:
     assert not step.terminates
     tests_passed += 1
 
-    step = parse_step("Step 2. Fetch Data: If user is admin, retrieve records, using db_query_tool;")
+    step = parse_step(
+        "Step 2. Fetch Data: If user is admin, retrieve records, using db_query_tool;"
+    )
     assert step is not None
     assert step.number == 2
     assert step.condition == "user is admin"
     tests_passed += 1
 
-    step = parse_step("Step 3. Format Response: Return structured JSON, using formatter_tool, and terminate workflow;")
+    step = parse_step(
+        "Step 3. Format Response: Return structured JSON, using formatter_tool, and terminate workflow;"
+    )
     assert step is not None
     assert step.terminates
     tests_passed += 1
@@ -187,11 +216,20 @@ def run_tests() -> int:
     assert routine.steps[1].tool == "write_file"
     tests_passed += 1
 
-    routine = Routine(steps=[
-        RoutineStep(1, "Verify", "Check permissions", "auth_tool", None, False),
-        RoutineStep(2, "Fetch", "If admin, retrieve records", "db_query_tool", "admin", False),
-        RoutineStep(3, "Format", "Return JSON", "formatter_tool", None, True),
-    ])
+    routine = Routine(
+        steps=[
+            RoutineStep(1, "Verify", "Check permissions", "auth_tool", None, False),
+            RoutineStep(
+                2,
+                "Fetch",
+                "If admin, retrieve records",
+                "db_query_tool",
+                "admin",
+                False,
+            ),
+            RoutineStep(3, "Format", "Return JSON", "formatter_tool", None, True),
+        ]
+    )
     output = format_routine(routine)
     assert "Step 1. Verify:" in output
     assert "using auth_tool" in output
@@ -228,12 +266,26 @@ def main() -> int:
         routine = decompose(args.task, args.tools)
         output = format_routine(routine)
         if args.json:
-            print(json.dumps({
-                "original_task": args.task,
-                "steps": [(s.number, s.name, s.description, s.tool, s.condition, s.terminates)
-                         for s in routine.steps],
-                "formatted": output,
-            }, indent=2))
+            print(
+                json.dumps(
+                    {
+                        "original_task": args.task,
+                        "steps": [
+                            (
+                                s.number,
+                                s.name,
+                                s.description,
+                                s.tool,
+                                s.condition,
+                                s.terminates,
+                            )
+                            for s in routine.steps
+                        ],
+                        "formatted": output,
+                    },
+                    indent=2,
+                )
+            )
         else:
             print(output)
         return 0

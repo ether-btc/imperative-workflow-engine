@@ -226,8 +226,8 @@ def verify_contract(
     Returns:
         VerificationResult with passed status and any violations
     """
-    violations = []
-    warnings = []
+    violations: list[ContractViolation] = []
+    warnings: list[ContractViolation] = []
 
     # Check step count matches
     if len(step_outputs) != len(contract.steps):
@@ -408,7 +408,7 @@ def run_tests() -> int:
         ]
     )
     outputs = [
-        {"tool_called": "terminal_tool", "result": "done", "workflow_ended": True}
+        {"tool_called": "terminal_tool", "result": "done", "workflow_ended": "true"}
     ]
     result = verify_contract(contract, outputs)
     assert result.passed
