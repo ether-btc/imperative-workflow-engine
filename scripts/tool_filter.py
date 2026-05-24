@@ -179,7 +179,7 @@ HERMES_TOOLS: list[Tool] = [
     Tool("text_to_speech", "Convert text to speech audio"),
     Tool("send_message", "Send a message to connected messaging platforms"),
     Tool("session_search", "Search past sessions in local SQLite session DB"),
-    Tool("git", "Run git commands in the repository"),
+    Tool("gh", "GitHub CLI — manage repos, PRs, issues, and releases via gh command"),
 ]
 
 

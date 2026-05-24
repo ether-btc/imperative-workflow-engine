@@ -166,7 +166,8 @@ def validate_step_output(
     violations = []
 
     # 1. Tool was called check
-    if step.tool and actual_output.get("tool_called"):
+    tool_called = actual_output.get("tool_called") or actual_output.get("tool_name") or ""
+    if step.tool and tool_called:
         if not validate_tool_called(actual_output["tool_called"], step.tool):
             violations.append(
                 ContractViolation(
@@ -175,7 +176,7 @@ def validate_step_output(
                     expected=step.tool,
                     actual=actual_output["tool_called"],
                     severity=ViolationSeverity.ERROR,
-                    message=f"Wrong tool called: expected {step.tool}, got {actual_output['tool_called']}",
+                    message=f"Wrong tool called: expected {step.tool}, got {tool_called}",
                 )
             )
 

@@ -48,8 +48,12 @@ def _make_record(value: Any, vtype: ValueType) -> dict:
     return {"value": value, "type": vtype.value}
 
 
-def _parse_record(record: dict) -> tuple[Any, ValueType]:
-    return record["value"], ValueType(record["type"])
+def _parse_record(record: dict) -> tuple[Any, ValueType] | None:
+    """Parse a stored record into (value, vtype). Returns None on corrupted data."""
+    try:
+        return record["value"], ValueType(record["type"])
+    except (KeyError, ValueError):
+        return None  # corrupted or unexpected record
 
 
 # ── Public API ────────────────────────────────────────────────────────────
@@ -135,7 +139,11 @@ def get_var(key: str) -> tuple[Any, ValueType] | None:
     if record is None:
         return None
 
-    serialized, vtype = _parse_record(record)
+    parsed = _parse_record(record)
+    if parsed is None:
+        return None
+
+    serialized, vtype = parsed
 
     # Deserialize
     deserialized: Any = serialized
