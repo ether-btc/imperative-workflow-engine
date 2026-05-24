@@ -79,7 +79,7 @@ def parse_step(line: str) -> Optional[RoutineStep]:
 
     # Pattern: terminating step (simple + terminates flag)
     m = re.match(
-        r'^Step\s+(\d+)\.\s+([^:]+):\s*(.+?),\s*using\s+([a-zA-Z][a-zA-Z0-9_]*)\s*tool[;,]?\s*,\s*and\s+terminate\s+workflow\s*$',
+        r'^Step\s+(\d+)\.\s+([^:]+):\s*([^,]+),\s*using\s+([a-zA-Z][a-zA-Z0-9_]*(?:_tool)?)\s*,\s*and\s+terminate\s+workflow\s*;?\s*$',
         line.strip()
     )
     if m:
@@ -146,7 +146,7 @@ def format_routine(routine: Routine) -> str:
         base = "Step {}. {}: {}".format(step.number, step.name, step.description)
         if step.condition:
             base = "Step {}. {}: If {}, {}".format(step.number, step.name, step.condition, step.description)
-        tool_str = ", using {}_tool".format(step.tool) if step.tool else ""
+        tool_str = ", using {}".format(step.tool) if step.tool else ""
         term_str = ", and terminate workflow" if step.terminates else ""
         lines.append(base + tool_str + term_str + ";")
     return "\n".join(lines)
@@ -194,7 +194,7 @@ def run_tests() -> int:
     ])
     output = format_routine(routine)
     assert "Step 1. Verify Permissions:" in output
-    assert "using auth_tool_tool" in output
+    assert "using auth_tool" in output
     assert "terminate workflow" in output
     tests_passed += 1
 
