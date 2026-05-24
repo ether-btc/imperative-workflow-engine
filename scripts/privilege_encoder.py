@@ -49,13 +49,17 @@ class EncodedInstruction:
 def encode_ordinal(text: str, level: int) -> str:
     """Encode with [[Privilege N]] ... [[/Privilege]] format."""
     level = max(0, min(4, level))  # clamp to 0-4
-    return f"[[Privilege {level}]] {text} [[/Privilege]]"
+    if text:
+        return f"[[Privilege {level}]] {text} [[/Privilege]]"
+    return f"[[Privilege {level}]][[/Privilege]]"
 
 
 def encode_scalar(text: str, level: int) -> str:
     """Encode with [[z=N]] ... [[/z]] format (higher N = higher priority)."""
     level = max(0, min(4, level))
-    return f"[[z={level}]] {text} [[/z]]"
+    if text:
+        return f"[[z={level}]] {text} [[/z]]"
+    return f"[[z={level}]][[/z]]"
 
 
 def encode(text: str, level: int = DEFAULT_LEVEL, format: str = "ordinal") -> EncodedInstruction:
@@ -90,22 +94,43 @@ def decode(encoded: str) -> Optional[EncodedInstruction]:
     Decode a privilege-encoded string back to its components.
     Supports both ordinal and scalar formats.
     Returns None if the string is not properly encoded.
+
+    Three-variant strategy handles all edge cases:
+    1. Space variant:  [[Privilege N]] content [[/Privilege]]
+    2. No-space variant:  [[Privilege N]][[/Privilege]]  (empty string)
+    3. Greedy fallback:  handles very long content with trailing spaces
     """
     import re
-    # Ordinal: [[Privilege N]] text [[/Privilege]]
-    m = re.match(r'^\[\[Privilege (\d+)\]\]\s*(.+?)\s*\[\[/Privilege\]\]$', encoded, re.DOTALL)
+    # Ordinal: space variant — [[Privilege N]] text [[/Privilege]]
+    m = re.match(r'^\[\[Privilege (\d+)\]\] ([\s\S]+?) \[\[/Privilege\]\]$', encoded)
     if m:
-        level = int(m.group(1))
-        return EncodedInstruction(original=m.group(2), encoded=encoded, 
-                                  privilege_level=level, format="ordinal")
-    
-    # Scalar: [[z=N]] text [[/z]]
-    m = re.match(r'^\[\[z=(\d+)\]\]\s*(.+?)\s*\[\[/z\]\]$', encoded, re.DOTALL)
-    if m:
-        level = int(m.group(1))
         return EncodedInstruction(original=m.group(2), encoded=encoded,
-                                  privilege_level=level, format="scalar")
-    
+                                  privilege_level=int(m.group(1)), format="ordinal")
+    # Ordinal: no-space variant — [[Privilege N]][[/Privilege]] (empty string)
+    m = re.match(r'^\[\[Privilege (\d+)\]\]\[\[/Privilege\]\]$', encoded)
+    if m:
+        return EncodedInstruction(original='', encoded=encoded,
+                                  privilege_level=int(m.group(1)), format="ordinal")
+    # Ordinal: greedy fallback — very long text with trailing whitespace
+    m = re.match(r'^\[\[Privilege (\d+)\]\] ([\s\S]+)\s*\[\[/Privilege\]\]$', encoded)
+    if m:
+        return EncodedInstruction(original=m.group(2), encoded=encoded,
+                                  privilege_level=int(m.group(1)), format="ordinal")
+    # Scalar: space variant — [[z=N]] text [[/z]]
+    m = re.match(r'^\[\[z=(\d+)\]\] ([\s\S]+?) \[\[/z\]\]$', encoded)
+    if m:
+        return EncodedInstruction(original=m.group(2), encoded=encoded,
+                                  privilege_level=int(m.group(1)), format="scalar")
+    # Scalar: no-space variant — [[z=N]][[/z]]
+    m = re.match(r'^\[\[z=(\d+)\]\]\[\[/z\]\]$', encoded)
+    if m:
+        return EncodedInstruction(original='', encoded=encoded,
+                                  privilege_level=int(m.group(1)), format="scalar")
+    # Scalar: greedy fallback
+    m = re.match(r'^\[\[z=(\d+)\]\] ([\s\S]+)\s*\[\[/z\]\]$', encoded)
+    if m:
+        return EncodedInstruction(original=m.group(2), encoded=encoded,
+                                  privilege_level=int(m.group(1)), format="scalar")
     return None
 
 

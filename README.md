@@ -10,7 +10,7 @@ Based on the Routine framework (arXiv:2507.14447), this project implements privi
 
 | Script | Purpose | Status |
 |--------|---------|--------|
-| `scripts/privilege_encoder.py` | Encode instruction text with `[[Privilege N]]` markers | ✅ 10/10 tests pass |
+| `scripts/privilege_encoder.py` | Encode instruction text with `[[Privilege N]]` markers | ✅ 12/12 edge-case tests pass |
 | `scripts/routine_decomposer.py` | Decompose tasks into Routine-style execution contracts | ✅ 6/6 tests pass |
 | `scripts/contract_verifier.py` | Runtime verification of execution contracts | Phase 3 |
 | `scripts/tool_filter.py` | Semantic tool filtering by contextual relevance | Phase 3 |
