@@ -1,0 +1,63 @@
+{
+  "workflows": [
+    {
+      "workflow_id": "phase5_e2e",
+      "privilege_tier": "read-only",
+      "duration_ms": 0.0,
+      "steps": [
+        {
+          "step": 1,
+          "phase": "Phase 1: Privilege Encoding",
+          "action": "end-to-end-run",
+          "passed": true,
+          "latency_ms": 0.0,
+          "hallucination_detected": false,
+          "privilege_tier_access": "N/A"
+        },
+        {
+          "step": 2,
+          "phase": "Phase 2: Tool Filtering",
+          "action": "end-to-end-run",
+          "passed": true,
+          "latency_ms": 0.0,
+          "hallucination_detected": false,
+          "privilege_tier_access": "N/A"
+        },
+        {
+          "step": 3,
+          "phase": "Phase 3: Routine Decomposition",
+          "action": "end-to-end-run",
+          "passed": true,
+          "latency_ms": 0.0,
+          "hallucination_detected": false,
+          "privilege_tier_access": "N/A"
+        },
+        {
+          "step": 4,
+          "phase": "Phase 4: Contract Verification",
+          "action": "end-to-end-run",
+          "passed": true,
+          "latency_ms": 0.0,
+          "hallucination_detected": false,
+          "privilege_tier_access": "N/A"
+        },
+        {
+          "step": 5,
+          "phase": "Phase 5: Variable Memory",
+          "action": "end-to-end-run",
+          "passed": true,
+          "latency_ms": 0.0,
+          "hallucination_detected": false,
+          "privilege_tier_access": "N/A"
+        }
+      ],
+      "total_steps": 5,
+      "passed_steps": 5,
+      "hallucination_count": 0,
+      "privilege_abuse_count": 0
+    }
+  ],
+  "step_accuracy_treatment": 100.0,
+  "note": "TREATMENT PLACEHOLDER -- real measurement requires live Hermes integration. Two paths: (1) adapter post-hook in a skill, or (2) native PR to prompt_builder.py:1183.",
+  "_placeholder": true
+}

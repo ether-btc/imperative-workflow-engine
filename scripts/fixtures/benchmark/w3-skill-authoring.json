@@ -1,0 +1,52 @@
+{
+  "workflow": "skill-authoring",
+  "workflow_id": "W3",
+  "description": "Author a new Hermes skill via hermes-agent-skill-authoring command",
+  "privilege_tier": "builder",
+  "task": "Create a new skill called 'disk-checker' in the system/administration category",
+  "golden_steps": [
+    {
+      "step": 1,
+      "action": "parse_skill_intent",
+      "input": "disk-checker, system/administration category",
+      "expected_fields": {"name": "disk-checker", "category": "system-administration"},
+      "hallucination_check": "no invented category names"
+    },
+    {
+      "step": 2,
+      "action": "generate_skill_md",
+      "expected_template": "SKILL.md with frontmatter (name, description, triggers, steps)",
+      "hallucination_check": "no invented frontmatter fields"
+    },
+    {
+      "step": 3,
+      "action": "validate_frontmatter",
+      "expected_fields": ["name", "description", "triggers", "steps"],
+      "hallucination_check": "no invented fields like 'version' without spec"
+    },
+    {
+      "step": 4,
+      "action": "write_skill_directory",
+      "expected_path": "~/.hermes/skills/system-administration/disk-checker/",
+      "hallucination_check": "no invented path like skills/disk/"
+    }
+  ],
+  "hallucination_patterns": [
+    {
+      "pattern": "skills/\\\\w+/[a-z]-",
+      "description": "wrong category path format"
+    },
+    {
+      "pattern": "triggers:|category:|version:",
+      "description": "invented or misnamed frontmatter fields"
+    },
+    {
+      "pattern": "--template|--scaffold|--generate",
+      "description": "invented CLI flags"
+    }
+  ],
+  "golden_output_sequence": [
+    "~/.hermes/skills/system-administration/disk-checker/SKILL.md"
+  ],
+  "baseline_expectation": "agent may use wrong category path, invent frontmatter fields, skip required sections"
+}

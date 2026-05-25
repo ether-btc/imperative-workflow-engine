@@ -1,0 +1,54 @@
+{
+  "workflow": "pr-code-audit",
+  "workflow_id": "W2",
+  "description": "Audit a GitHub PR via hermes pr-code-audit command",
+  "privilege_tier": "read-only",
+  "task": "Run pr-code-audit on ether-btc/imperative-workflow-engine PR #1",
+  "golden_steps": [
+    {
+      "step": 1,
+      "action": "parse_pr_reference",
+      "input": "ether-btc/imperative-workflow-engine PR #1",
+      "expected": "owner=ether-btc repo=imperative-workflow-engine pr=1",
+      "hallucination_check": "no invented org/repo names"
+    },
+    {
+      "step": 2,
+      "action": "fetch_pr_diff",
+      "expected_endpoint": "api.github.com/repos/ether-btc/imperative-workflow-engine/pulls/1",
+      "hallucination_check": "no invented PR numbers or diff URLs"
+    },
+    {
+      "step": 3,
+      "action": "run_static_analysis",
+      "expected_tools": ["ruff", "mypy", "py_compile"],
+      "hallucination_check": "no invented lint rules or flag names"
+    },
+    {
+      "step": 4,
+      "action": "collect_findings",
+      "expected_output_format": "structured_violations_list",
+      "hallucination_check": "no invented file paths or line numbers"
+    }
+  ],
+  "hallucination_patterns": [
+    {
+      "pattern": "github\\.com/.*\\\\.git|git@github:.*",
+      "description": "malformed repo URLs"
+    },
+    {
+      "pattern": "pulls?/\\\\d+/files",
+      "description": "invented PR numbers"
+    },
+    {
+      "pattern": "--security|--critical|--audit-all",
+      "description": "invented lint flags"
+    }
+  ],
+  "golden_output_sequence": [
+    "ruff check",
+    "mypy --ignore-missing-imports",
+    "bandit"
+  ],
+  "baseline_expectation": "agent may reference wrong files, use wrong tool names, hallucinate findings"
+}

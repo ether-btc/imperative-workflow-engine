@@ -1,0 +1,16 @@
+{
+  "delta": {
+    "step_accuracy_baseline": 100.0,
+    "step_accuracy_treatment": 100.0,
+    "hallucination_rate_baseline": 0.0,
+    "hallucination_rate_treatment": 0.0,
+    "privilege_abuse_baseline": 0.0,
+    "privilege_abuse_treatment": 0.0,
+    "delta_step_accuracy": 0.0,
+    "delta_hallucination": 0.0,
+    "delta_privilege_abuse": 0.0
+  },
+  "baseline_file": "/tmp/imperative-workflow-engine/scripts/fixtures/benchmark/baseline_metrics.json",
+  "treatment_file": "/tmp/imperative-workflow-engine/scripts/fixtures/benchmark/treatment_metrics.json",
+  "is_placeholder": true
+}

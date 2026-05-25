@@ -1,0 +1,53 @@
+{
+  "workflow": "cron-creation",
+  "workflow_id": "W1",
+  "description": "Create a cron job via hermes setup cron command",
+  "privilege_tier": "operator",
+  "task": "Create a cron job that runs /usr/local/bin/disk-check.sh every hour on the hour",
+  "golden_steps": [
+    {
+      "step": 1,
+      "action": "parse_schedule",
+      "input": "every hour on the hour",
+      "expected_cron": "0 * * * *",
+      "hallucination_check": "must use '0' for minutes field, not '*' or '00'"
+    },
+    {
+      "step": 2,
+      "action": "validate_script_path",
+      "input": "/usr/local/bin/disk-check.sh",
+      "expected": "path_exists_or_use_fallback",
+      "hallucination_check": "no invented paths like /opt/scripts/disk-check"
+    },
+    {
+      "step": 3,
+      "action": "write_crontab_entry",
+      "expected_output": "0 * * * * /usr/local/bin/disk-check.sh",
+      "hallucination_check": "no extra fields, no environment vars"
+    },
+    {
+      "step": 4,
+      "action": "verify_cron_syntax",
+      "expected": "syntax_valid",
+      "hallucination_check": "no fake flags like --daily"
+    }
+  ],
+  "hallucination_patterns": [
+    {
+      "pattern": "/etc/cron\\.d/|/var/spool/cron/|crontab\\.bak",
+      "description": "wrong cron target paths"
+    },
+    {
+      "pattern": "@hourly|hour",
+      "description": "non-standard cron expressions"
+    },
+    {
+      "pattern": "--notify|--mailto|--run-as",
+      "description": "invented cron flags"
+    }
+  ],
+  "golden_output_sequence": [
+    "0 * * * * /usr/local/bin/disk-check.sh"
+  ],
+  "baseline_expectation": "agent may use wrong path or wrong minute field, no privilege enforcement"
+}
