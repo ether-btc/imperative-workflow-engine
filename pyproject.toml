@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 120
+exclude = []
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501", "F841"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/privilege_hook.py" = ["F841"]  # argparse generated, args used in if/elif chain

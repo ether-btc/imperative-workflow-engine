@@ -178,7 +178,7 @@ def main() -> None:
 
     p_test = sub.add_parser("test", help="Run tests")
 
-    args = parser.parse_args()
+    args = parser.parse_args()  # noqa: F841
 
     if args.cmd == "encode":
         print(encode(args.text, args.level))

@@ -17,7 +17,7 @@ import re
 import sys
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Any
+from typing import Any, Optional
 
 VERSION = "0.1.0"
 

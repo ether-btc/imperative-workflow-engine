@@ -16,11 +16,11 @@ Usage:
 """
 
 import argparse
-import sys
 import json
 import re
+import sys
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import List, Optional
 
 VERSION = "0.1.0"
 

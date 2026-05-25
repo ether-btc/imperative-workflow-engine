@@ -19,16 +19,18 @@ from pathlib import Path
 # Ensure scripts/ are importable when running from repo root
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from privilege_encoder import encode, decode  # noqa: E402
-from privilege_hook import encode_skill_index, apply_privilege_encoding  # noqa: E402
-from routine_decomposer import decompose, format_routine  # noqa: E402
+from typing import List  # noqa: E402
+
 from contract_verifier import (  # noqa: E402
-    ExecutionContract, ContractStep,
+    ContractStep,
+    ExecutionContract,
     verify_contract,
 )
-from tool_filter import filter_tools, Tool  # noqa: E402
-from variable_memory import set_var, get_var, resolve, clear_vars, ValueType  # noqa: E402
-from typing import List  # noqa: E402
+from privilege_encoder import decode, encode  # noqa: E402
+from privilege_hook import apply_privilege_encoding, encode_skill_index  # noqa: E402
+from routine_decomposer import decompose, format_routine  # noqa: E402
+from tool_filter import Tool, filter_tools  # noqa: E402
+from variable_memory import ValueType, clear_vars, get_var, resolve, set_var  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Configuration

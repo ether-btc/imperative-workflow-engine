@@ -12,8 +12,8 @@ Usage:
 """
 
 import argparse
-import sys
 import json
+import sys
 from dataclasses import dataclass
 from typing import Optional
 
