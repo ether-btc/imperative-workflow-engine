@@ -13,10 +13,9 @@ Usage:
 """
 
 import json
-import sys
-import time
 import subprocess
-from dataclasses import dataclass, field, asdict
+import sys
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Optional
 
