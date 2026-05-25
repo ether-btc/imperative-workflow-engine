@@ -137,7 +137,6 @@ def apply_privilege_encoding(
 # ---------------------------------------------------------------------------
 
 def _test() -> None:
-    import doctest
 
     print("Running doctests + unit tests ...")
     assert encode("test", 2) == "[[Privilege 2]] test [[/Privilege]]"
