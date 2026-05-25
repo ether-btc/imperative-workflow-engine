@@ -29,7 +29,7 @@ except ImportError:
 
 VERSION = "0.1.0"
 
-DEFAULT_THRESHOLD = float(os.environ.get("IMPERATIVE_TOOL_FILTER_THRESHOLD", "0.7"))
+DEFAULT_THRESHOLD = float(os.environ.get("IMPERATIVE_TOOL_FILTER_THRESHOLD", "0.15"))
 
 
 @dataclass

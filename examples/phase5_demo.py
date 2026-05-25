@@ -37,17 +37,17 @@ from variable_memory import ValueType, clear_vars, get_var, resolve, set_var  # 
 # ---------------------------------------------------------------------------
 DEFAULT_TOOLS = [
     {"name": "terminal", "description": "Execute shell commands on the system"},
+    {"name": "read_file", "description": "Read a text file with line numbers and pagination"},
+    {"name": "write_file", "description": "Write or overwrite an entire file atomically"},
+    {"name": "search_files", "description": "Search file contents with regex, or find files by glob pattern"},
     {"name": "web_search", "description": "Search the web for information"},
-    {"name": "web_extract", "description": "Extract content from a web page URL"},
-    {"name": "file_read", "description": "Read the contents of a file"},
-    {"name": "file_write", "description": "Write content to a file"},
-    {"name": "mnemosyne_remember", "description": "Save durable information to persistent memory"},
-    {"name": "mnemosyne_recall", "description": "Search persistent memory"},
-    {"name": "cronjob", "description": "Manage scheduled cron jobs"},
-    {"name": "terminal_run", "description": "Run a command in the terminal tool"},
-    {"name": "delegate_task", "description": "Spawn a subagent to work on a task"},
-    {"name": "skill_view", "description": "Load a skill's full content"},
-    {"name": "skills_list", "description": "List available skills"},
+    {"name": "web_extract", "description": "Extract page content from URLs as markdown"},
+    {"name": "mnemosyne_remember", "description": "Store durable memory persisting across sessions"},
+    {"name": "mnemosyne_recall", "description": "Search Mnemosyne for relevant memories"},
+    {"name": "cronjob", "description": "Manage scheduled cron jobs with one compressed tool call"},
+    {"name": "delegate_task", "description": "Spawn subagents for parallel independent workstreams"},
+    {"name": "skill_view", "description": "Load skill content or access linked files"},
+    {"name": "execute_code", "description": "Run Python with programmatic tool access"},
 ]
 
 SAMPLE_SYSTEM_PROMPT = """You are a helpful assistant.
@@ -117,10 +117,10 @@ def demo_tool_filtering():
 
     for task in [task1, task2, task3]:
         print(f"Task: {task}")
-        result = filter_tools(task, TOOLS_LIST, threshold=0.5)
+        result = filter_tools(task, TOOLS_LIST, threshold=0.15)
         print(f"  Relevant tools ({len(result.filtered_tools)}/{len(TOOLS_LIST)}):")
-        for name, score in result.filtered_tools:
-            print(f"    {name:20s} — {score:.3f}")
+        for name in result.filtered_tools:
+            print(f"    {name:20s} — {result.scores[name]:.3f}")
         print()
 
     return result
