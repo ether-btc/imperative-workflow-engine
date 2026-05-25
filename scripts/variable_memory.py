@@ -38,6 +38,7 @@ class ValueType(Enum):
 
 
 # Module-level registry for testing (avoids import-time Mnemosyne init in CI)
+# Always available as fallback regardless of Mnemosyne presence
 _registry: dict[str, dict] = {}
 
 
@@ -102,10 +103,10 @@ def set_var(key: str, value: Any, vtype: ValueType = ValueType.STRING) -> dict:
 
     try:
         from hermes_tools import mnemosyne_scratchpad_write
-
         mnemosyne_scratchpad_write(f"var:{key}", json.dumps(record))
     except Exception:
-        # Fallback: module-level registry (for testing without Mnemosyne)
+        # Fallback: module-level registry (for testing without Mnemosyne
+        # or when hermes_tools is not available)
         _registry[key] = record
 
     size = len(serialized)
@@ -123,7 +124,6 @@ def get_var(key: str) -> tuple[Any, ValueType] | None:
 
     try:
         from hermes_tools import mnemosyne_scratchpad_read
-
         raw = mnemosyne_scratchpad_read()
         # mnemosyne_scratchpad_read returns a list of entries
         if isinstance(raw, list):
@@ -133,7 +133,16 @@ def get_var(key: str) -> tuple[Any, ValueType] | None:
                     break
         elif isinstance(raw, dict) and raw.get("key") == f"var:{key}":
             record = json.loads(raw.get("content", "{}"))
-    except Exception:
+    except ImportError:
+        # hermes_tools not available — use _registry directly
+        pass
+    except (KeyError, ValueError):
+        # Fallback: module-level registry (for testing without Mnemosyne
+        # or when scratchpad entry is missing/invalid)
+        pass  # fall through to _registry lookup below
+
+    # Always check _registry as definitive fallback (handles zero-dep CI)
+    if record is None:
         record = _registry.get(key)
 
     if record is None:
@@ -221,9 +230,12 @@ def list_vars() -> list[str]:
             if k.startswith("var:"):
                 keys.append(k[4:])
     except Exception:
-        keys = list(_registry.keys())
+        pass  # fall through to _registry
 
-    return sorted(keys)
+    # Always check _registry as definitive source for zero-dep CI
+    registry_keys = list(_registry.keys())
+    keys = sorted(set(keys + registry_keys))
+    return keys
 
 
 def clear_vars() -> int:
